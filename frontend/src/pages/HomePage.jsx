@@ -41,12 +41,12 @@ export default function HomePage() {
           objectPosition="center 30%"
         />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,12,10,0.15) 0%, rgba(20,12,10,0.45) 100%)" }} />
-        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 20 }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "20px 24px" }}>
           <div style={{ fontSize: 11.5, letterSpacing: 3.5, color: "#F3E9DF", fontWeight: 600, marginBottom: 18 }}>HANDMADE · EGYPT</div>
-          <h1 className="serif" style={{ fontSize: "clamp(38px, 6.5vw, 64px)", fontWeight: 600, letterSpacing: 0.3, margin: 0, color: "#fff", textShadow: "0 2px 20px rgba(0,0,0,0.25)", alignSelf: "stretch" }}>
+          <h1 className="serif" style={{ fontSize: "clamp(30px, 6.5vw, 64px)", fontWeight: 600, letterSpacing: 0.3, margin: 0, color: "#fff", textShadow: "0 2px 20px rgba(0,0,0,0.25)", maxWidth: 900 }}>
             Where Wood Meets Art
           </h1>
-          <p style={{ fontSize: 15.5, color: "#F3E9DF", marginTop: 18, lineHeight: 1.9, maxWidth: 480, alignSelf: "stretch" }}>
+          <p style={{ fontSize: 15.5, color: "#F3E9DF", marginTop: 18, lineHeight: 1.9, maxWidth: 480, marginInline: "auto" }}>
             Oriental and Pharaonic-inspired wooden pieces, painted and finished
             entirely by hand — for an authentic touch in your space.
           </p>

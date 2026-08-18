@@ -17,7 +17,7 @@ export default function AboutPage() {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,12,10,0.25) 0%, rgba(20,12,10,0.55) 100%)" }} />
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 20 }}>
           <div style={{ fontSize: 11, letterSpacing: 3.5, color: "#F3E9DF", fontWeight: 600, marginBottom: 14 }}>OUR STORY</div>
-          <h1 className="serif" style={{ fontSize: "clamp(30px, 5vw, 44px)", fontWeight: 600, margin: 0, color: "#fff", alignSelf: "stretch" }}>About Zakhrafa</h1>
+          <h1 className="serif" style={{ fontSize: "clamp(26px, 5vw, 44px)", fontWeight: 600, margin: 0, color: "#fff", maxWidth: 900 }}>About Zakhrafa</h1>
         </div>
       </section>
 
