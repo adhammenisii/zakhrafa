@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.local
+frontend/dist/
+
+# Legacy JSON data files — Postgres (Neon) is now the source of truth.
+# These also contain real customer names/phone numbers/addresses from testing,
+# so they must never be committed.
+backend/data/*.json
+
+.DS_Store
+*.log

@@ -1,0 +1,5 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="32" cy="32" r="31" fill="#E7B9C4" />
+  <circle cx="32" cy="32" r="31" fill="none" stroke="#7A5A34" stroke-width="1" opacity="0.5" />
+  <text x="32" y="43" text-anchor="middle" font-family="Georgia, 'Cormorant Garamond', serif" font-size="34" font-weight="600" fill="#5C4326">Z</text>
+</svg>
