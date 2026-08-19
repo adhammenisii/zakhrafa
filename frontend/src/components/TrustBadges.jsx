@@ -5,7 +5,7 @@ import { INK, MUTED, LINE } from "./ui.jsx";
 const BADGES = [
   { icon: Hammer, label: "Handmade in Egypt", sub: "Crafted by hand, piece by piece" },
   { icon: ShieldCheck, label: "100% Authentic", sub: "Genuine, original designs" },
-  { icon: Truck, label: "Free Shipping", sub: "On all orders across Egypt" },
+  { icon: Truck, label: "Free Shipping", sub: "Across Egypt · Delivered in 2–4 business days" },
 ];
 
 export default function TrustBadges({ compact = false }) {

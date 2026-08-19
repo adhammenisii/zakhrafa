@@ -67,7 +67,7 @@
   <div class="card">
     <h3>Orders</h3>
     <table id="orders-table">
-      <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Total</th><th>Status</th></tr></thead>
+      <thead><tr><th>Ref</th><th>Customer</th><th>Phone</th><th>Deliver to</th><th>Total</th><th>Status</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -86,6 +86,7 @@ const API = ""; // same origin
 let token = localStorage.getItem("zakhrafa_admin_token");
 
 const catLabels = { mosaic: "Mosaic Mirrors", pharaonic: "Pharaonic Art", ramadan: "Occasion Decor", oriental: "Oriental Panels" };
+const payLabels = { cod: "Cash on Delivery", vodafone_cash: "Vodafone Cash", card: "Card" };
 
 if (token) showDashboard();
 
@@ -174,15 +175,24 @@ async function loadOrders() {
   if (!res.ok) return;
   const orders = await res.json();
   const tbody = document.querySelector("#orders-table tbody");
-  tbody.innerHTML = orders.slice().reverse().map(o => `
+  tbody.innerHTML = orders.slice().reverse().map(o => {
+    const c = o.customer || {};
+    const region = [c.city, c.governorate, c.postalCode].filter(Boolean).join(", ");
+    const ref = "ZKH-" + String(o.id).padStart(5, "0");
+    return `
     <tr>
-      <td>#${o.id}</td>
-      <td>${o.customer.name}</td>
-      <td>${o.customer.phone}</td>
-      <td>EGP ${o.total}</td>
+      <td>${ref}</td>
+      <td>${c.name || "-"}${c.email ? `<br><span style="color:#8A8079;font-size:12px">${c.email}</span>` : ""}</td>
+      <td>${c.phone || "-"}</td>
+      <td style="max-width:260px">
+        ${c.address || "-"}
+        ${region ? `<br><span style="color:#8A8079;font-size:12px">${region}</span>` : ""}
+        ${c.notes ? `<br><span style="color:#8A8079;font-size:12px;font-style:italic">Note: ${c.notes}</span>` : ""}
+      </td>
+      <td>EGP ${o.total}${c.paymentMethod ? `<br><span style="color:#8A8079;font-size:12px">${payLabels[c.paymentMethod] || c.paymentMethod}</span>` : ""}</td>
       <td><span class="tag">${o.status}</span></td>
-    </tr>
-  `).join("") || "<tr><td colspan='5'>No orders yet</td></tr>";
+    </tr>`;
+  }).join("") || "<tr><td colspan='6'>No orders yet</td></tr>";
 }
 
 async function loadMessages() {

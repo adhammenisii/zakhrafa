@@ -4,6 +4,22 @@ import { Reveal, SkeletonImg, INK, MUTED } from "../components/ui.jsx";
 import TrustBadges from "../components/TrustBadges.jsx";
 import { useSeo } from "../lib/useSeo.js";
 
+// Dark scrim over the photo so the existing overlaid text keeps its contrast.
+const CARD_SCRIM = "linear-gradient(rgba(28,20,17,0.62), rgba(28,20,17,0.62))";
+
+const cardImageStyle = {
+  background: INK,
+  color: "#E7B9C4",
+  aspectRatio: "1 / 1",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  textAlign: "center",
+  padding: 20,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+};
+
 export default function AboutPage() {
   useSeo({
     title: "About Us",
@@ -38,7 +54,7 @@ export default function AboutPage() {
       <section style={{ maxWidth: 1120, margin: "60px auto 0", padding: "0 20px 90px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 24 }}>
           <Reveal delay={0}>
-            <div style={{ background: INK, color: "#E7B9C4", aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 20 }}>
+            <div style={{ ...cardImageStyle, backgroundImage: `${CARD_SCRIM}, url('/images/products/mosaic-tiles.jpg')` }}>
               <span className="serif" style={{ fontSize: 24, fontStyle: "italic" }}>What is Zakhrafa?</span>
             </div>
             <p style={{ color: MUTED, lineHeight: 2, fontSize: 14, marginTop: 18 }}>
@@ -46,7 +62,7 @@ export default function AboutPage() {
             </p>
           </Reveal>
           <Reveal delay={100}>
-            <div style={{ background: INK, color: "#E7B9C4", aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 20 }}>
+            <div style={{ ...cardImageStyle, backgroundImage: `${CARD_SCRIM}, url('/images/products/ramadan.jpg')` }}>
               <span className="serif" style={{ fontSize: 24, fontStyle: "italic" }}>Who's Behind Zakhrafa?</span>
             </div>
             <p style={{ color: MUTED, lineHeight: 2, fontSize: 14, marginTop: 18 }}>
@@ -54,7 +70,7 @@ export default function AboutPage() {
             </p>
           </Reveal>
           <Reveal delay={200}>
-            <div style={{ background: INK, color: "#E7B9C4", aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 20 }}>
+            <div style={{ ...cardImageStyle, backgroundImage: `${CARD_SCRIM}, url('/images/products/nefertari.jpg')` }}>
               <span className="serif" style={{ fontSize: 24, fontStyle: "italic" }}>Why Zakhrafa?</span>
             </div>
             <p style={{ color: MUTED, lineHeight: 2, fontSize: 14, marginTop: 18 }}>

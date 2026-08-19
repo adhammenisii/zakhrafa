@@ -82,6 +82,13 @@ export default function ZakhrafaStore() {
           input.zk, textarea.zk { width: 100%; padding: 10px 12px; border: 1px solid ${LINE}; border-radius: 4px; margin-bottom: 12px; font-family: inherit; font-size: 13.5px; transition: border-color .3s ease; }
           input.zk:focus, textarea.zk:focus { border-color: ${INK}; outline: none; }
 
+          /* checkout form field rows */
+          .checkout-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+          .checkout-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+          @media (max-width: 560px) {
+            .checkout-row-2, .checkout-row-3 { grid-template-columns: 1fr; }
+          }
+
           @media (prefers-reduced-motion: reduce) {
             .product-card, .banner-img, .banner, button, a, .reveal { transition: none !important; animation: none !important; }
             .reveal { opacity: 1 !important; transform: none !important; }

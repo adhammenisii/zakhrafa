@@ -40,7 +40,17 @@ export function StoreProvider({ children }) {
   const [recentlyViewed, setRecentlyViewed] = useState(() => loadIds(RECENTLY_VIEWED_KEY));
   const [toast, setToast] = useState("");
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [checkoutForm, setCheckoutForm] = useState({ name: "", phone: "", address: "" });
+  const [checkoutForm, setCheckoutForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    governorate: "",
+    notes: "",
+    paymentMethod: "cod",
+  });
   const [placing, setPlacing] = useState(false);
   const [promo, setPromo] = useState(null); // { code, label, discount }
   const [promoInput, setPromoInput] = useState("");
@@ -81,21 +91,33 @@ export function StoreProvider({ children }) {
   const addToCart = (id) => {
     const p = products.find((p) => p.id === id);
     if (!p) return;
-    if ((p.stock ?? 0) <= 0) {
+    const stock = p.stock ?? 0;
+
+    // Decide before updating so the toast always matches what actually happened, and so we
+    // never trigger a state update from inside another setter's updater (double-fires in StrictMode).
+    if (stock <= 0) {
       setToast(`"${p.name}" is out of stock`);
       return;
     }
-    setCart((c) => {
-      const nextQty = (c[id] || 0) + 1;
-      if (nextQty > p.stock) {
-        setToast(`Only ${p.stock} of "${p.name}" available`);
-        return c;
-      }
-      return { ...c, [id]: nextQty };
-    });
+    if ((cart[id] || 0) + 1 > stock) {
+      setToast(`Only ${stock} of "${p.name}" available`);
+      return;
+    }
+
+    setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
     setToast(`Added "${p.name}" to cart`);
   };
-  const changeQty = (id, delta) => setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] || 0) + delta) }));
+
+  const changeQty = (id, delta) => {
+    const p = products.find((p) => p.id === id);
+    const stock = p?.stock ?? 0;
+    const next = Math.max(0, (cart[id] || 0) + delta);
+    if (delta > 0 && next > stock) {
+      setToast(`Only ${stock} of "${p?.name ?? "this item"}" available`);
+      return;
+    }
+    setCart((c) => ({ ...c, [id]: next }));
+  };
 
   const isWishlisted = (id) => wishlist.includes(id);
   const toggleWishlist = (id) => {

@@ -75,8 +75,21 @@ export default function OrderConfirmationPage() {
 
       <div style={{ marginTop: 24, border: `1px solid ${LINE}`, borderRadius: 4, padding: "16px 20px", fontSize: 13.5, color: MUTED, lineHeight: 1.9 }}>
         <strong style={{ color: INK }}>Delivering to:</strong> {order.customer.name} — {order.customer.phone}
+        {order.customer.email && <> · {order.customer.email}</>}
         <br />
         {order.customer.address}
+        {(order.customer.city || order.customer.postalCode || order.customer.governorate) && (
+          <>
+            <br />
+            {[order.customer.city, order.customer.governorate, order.customer.postalCode].filter(Boolean).join(", ")}
+          </>
+        )}
+        {order.customer.notes && (
+          <>
+            <br />
+            <span style={{ fontStyle: "italic" }}>Notes: {order.customer.notes}</span>
+          </>
+        )}
       </div>
 
       <div style={{ textAlign: "center", marginTop: 40 }}>

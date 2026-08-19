@@ -23,8 +23,17 @@ function toOrderJSON(row) {
 // body: { customer: { name, phone, address }, items: [{ id, qty }], promoCode? }
 router.post("/", async (req, res) => {
   const { customer, items, promoCode } = req.body;
-  if (!customer?.name || !customer?.phone || !customer?.address) {
-    return res.status(400).json({ error: "Missing customer details (name/phone/address)" });
+
+  // mirrors REQUIRED_FIELDS in the frontend's lib/checkoutFields.js
+  const REQUIRED = {
+    name: "name", phone: "phone", address: "address", city: "city",
+    postalCode: "postal code", governorate: "governorate", paymentMethod: "payment method",
+  };
+  const missing = Object.entries(REQUIRED)
+    .filter(([field]) => !String(customer?.[field] || "").trim())
+    .map(([, label]) => label);
+  if (missing.length) {
+    return res.status(400).json({ error: `Missing customer details: ${missing.join(", ")}` });
   }
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: "Your cart is empty" });
