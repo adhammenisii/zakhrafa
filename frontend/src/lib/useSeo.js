@@ -3,8 +3,14 @@ import { useEffect } from "react";
 const SITE_NAME = "Zakhrafa Handmade";
 
 function setMetaByAttr(attr, key, content) {
-  if (!content) return;
-  let tag = document.querySelector(`meta[${attr}="${key}"]`);
+  const existing = document.querySelector(`meta[${attr}="${key}"]`);
+  // Remove rather than leave a stale value behind — otherwise a product page's og:image
+  // would follow the visitor onto pages that don't set one.
+  if (!content) {
+    if (existing) existing.remove();
+    return;
+  }
+  let tag = existing;
   if (!tag) {
     tag = document.createElement("meta");
     tag.setAttribute(attr, key);
@@ -24,7 +30,7 @@ export function useSeo({ title, description, image, noindex = false }) {
     setMetaByAttr("property", "og:title", fullTitle);
     setMetaByAttr("property", "og:description", description);
     setMetaByAttr("property", "og:url", window.location.href);
-    if (image) setMetaByAttr("property", "og:image", image);
+    setMetaByAttr("property", "og:image", image);
 
     setMetaByAttr("name", "robots", noindex ? "noindex, nofollow" : "index, follow");
   }, [title, description, image, noindex]);

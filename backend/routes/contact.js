@@ -1,6 +1,7 @@
 import express from "express";
 import { query } from "../db.js";
 import { requireAdmin } from "./admin.js";
+import { asyncHandler } from "../lib/asyncHandler.js";
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ function toMessageJSON(row) {
 }
 
 // POST /api/contact  (public — customer sends a message from the Contact Us page)
-router.post("/", async (req, res) => {
+router.post("/", asyncHandler(async (req, res) => {
   const { name, email, subject, message } = req.body;
   if (!name || !email || !message) {
     return res.status(400).json({ error: "Name, email, and message are required" });
@@ -28,19 +29,19 @@ router.post("/", async (req, res) => {
   );
 
   res.status(201).json(toMessageJSON(rows[0]));
-});
+}));
 
 // GET /api/contact  (admin only — view all messages)
-router.get("/", requireAdmin, async (req, res) => {
+router.get("/", requireAdmin, asyncHandler(async (req, res) => {
   const { rows } = await query("SELECT * FROM messages ORDER BY id");
   res.json(rows.map(toMessageJSON));
-});
+}));
 
 // DELETE /api/contact/:id  (admin only)
-router.delete("/:id", requireAdmin, async (req, res) => {
+router.delete("/:id", requireAdmin, asyncHandler(async (req, res) => {
   const { rowCount } = await query("DELETE FROM messages WHERE id = $1", [Number(req.params.id)]);
   if (!rowCount) return res.status(404).json({ error: "Message not found" });
   res.json({ ok: true });
-});
+}));
 
 export default router;

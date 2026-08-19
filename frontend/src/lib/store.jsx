@@ -1,22 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { RECENTLY_VIEWED_KEY, WISHLIST_KEY, RECENTLY_VIEWED_MAX } from "./constants.js";
 
-export const CATEGORIES = [
-  { id: "mosaic", label: "Mosaic Mirrors", img: "/images/products/mosaic-tiles.jpg" },
-  { id: "pharaonic", label: "Pharaonic Art", img: "/images/products/nefertari.jpg" },
-  { id: "ramadan", label: "Occasion Decor", img: "/images/products/ramadan.jpg" },
-  { id: "oriental", label: "Oriental Panels", img: "/images/products/tray.jpg" },
-];
-
-export const fmt = (n) => "EGP " + n.toLocaleString("en-US");
-
-export function orderRef(id) {
-  return `ZKH-${String(id).padStart(5, "0")}`;
-}
-
-const RECENTLY_VIEWED_KEY = "zakhrafa_recently_viewed";
-const WISHLIST_KEY = "zakhrafa_wishlist";
-const RECENTLY_VIEWED_MAX = 8;
+// Re-exported so existing imports from "lib/store.jsx" keep working.
+export { CATEGORIES } from "./constants.js";
+export { fmt, orderRef } from "./format.js";
 
 function loadIds(key) {
   try {
@@ -121,12 +109,15 @@ export function StoreProvider({ children }) {
 
   const isWishlisted = (id) => wishlist.includes(id);
   const toggleWishlist = (id) => {
-    setWishlist((w) => {
-      if (w.includes(id)) return w.filter((x) => x !== id);
-      const p = products.find((p) => p.id === id);
-      if (p) setToast(`Added "${p.name}" to wishlist`);
-      return [...w, id];
-    });
+    // Decide outside the updater — a setState call inside another setter's updater
+    // double-fires under StrictMode.
+    if (wishlist.includes(id)) {
+      setWishlist((w) => w.filter((x) => x !== id));
+      return;
+    }
+    const p = products.find((p) => p.id === id);
+    setWishlist((w) => (w.includes(id) ? w : [...w, id]));
+    if (p) setToast(`Added "${p.name}" to wishlist`);
   };
   const removeFromWishlist = (id) => setWishlist((w) => w.filter((x) => x !== id));
   const wishlistItems = wishlist.map((id) => products.find((p) => p.id === id)).filter(Boolean);
@@ -135,19 +126,23 @@ export function StoreProvider({ children }) {
     setRecentlyViewed((list) => [id, ...list.filter((x) => x !== id)].slice(0, RECENTLY_VIEWED_MAX));
   };
 
+  async function validatePromo(code, items) {
+    const res = await fetch("/api/promo/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, items: items.map((i) => ({ id: i.id, qty: i.qty })) }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Couldn't apply that code");
+    return data;
+  }
+
   async function applyPromo() {
     if (!promoInput.trim()) return;
     setPromoStatus("checking");
     setPromoError("");
     try {
-      const res = await fetch("/api/promo/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: promoInput, items: cartItems.map((i) => ({ id: i.id, qty: i.qty })) }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setPromo(data);
+      setPromo(await validatePromo(promoInput, cartItems));
       setPromoStatus("");
     } catch (err) {
       setPromo(null);
@@ -162,9 +157,39 @@ export function StoreProvider({ children }) {
     setPromoError("");
   };
 
+  // A percentage discount is computed from the cart subtotal, so it goes stale the moment the
+  // cart changes. Re-check it against the server, otherwise the customer sees one total and the
+  // server (which recalculates on submit) charges another.
+  const cartSignature = cartItems.map((i) => `${i.id}x${i.qty}`).join(",");
+  const promoCodeRef = useRef(null);
+  promoCodeRef.current = promo?.code || null;
+
+  useEffect(() => {
+    const code = promoCodeRef.current;
+    if (!code) return;
+    if (!cartItems.length) {
+      clearPromo();
+      return;
+    }
+    let cancelled = false;
+    validatePromo(code, cartItems)
+      .then((fresh) => { if (!cancelled) setPromo(fresh); })
+      .catch(() => {
+        if (cancelled) return;
+        setPromo(null);
+        setPromoStatus("error");
+        setPromoError("That promo code no longer applies to this cart");
+      });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartSignature]);
+
   async function submitOrder(e) {
     e.preventDefault();
+    if (placing) return; // guard against double-submit
     setPlacing(true);
+
+    let order;
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -175,33 +200,39 @@ export function StoreProvider({ children }) {
           promoCode: promo?.code || undefined,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Couldn't place your order. Please try again.");
+      order = data;
+    } catch (err) {
+      setToast(err.message || "Something went wrong, please try again");
+      setPlacing(false);
+      return;
+    }
 
-      // try to kick off online payment (returns a friendly error if Paymob isn't configured yet)
+    // The order now exists. A failure past this point must NOT send the customer back to
+    // the form — they'd re-submit and create a duplicate order.
+    try {
       const payRes = await fetch("/api/payment/initiate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: data.id }),
+        body: JSON.stringify({ orderId: order.id }),
       });
-      const payData = await payRes.json();
-
+      const payData = await payRes.json().catch(() => ({}));
       if (payRes.ok && payData.paymentUrl) {
         window.location.href = payData.paymentUrl;
         return;
       }
-
-      setLastOrder(data);
-      setCart({});
-      clearPromo();
-      setCheckoutOpen(false);
-      setCartOpen(false);
-      navigate(`/order-confirmation/${data.id}`);
-    } catch (err) {
-      setToast(err.message || "Something went wrong, please try again");
-    } finally {
-      setPlacing(false);
+    } catch {
+      // Payment gateway unreachable — the order still stands, so fall through to confirmation.
     }
+
+    setLastOrder(order);
+    setCart({});
+    clearPromo();
+    setCheckoutOpen(false);
+    setCartOpen(false);
+    setPlacing(false);
+    navigate(`/order-confirmation/${order.id}`);
   }
 
   const value = {

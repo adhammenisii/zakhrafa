@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { SkeletonImg, Motif, ACCENT, SURFACE, LINE, INK } from "./ui.jsx";
 
@@ -7,6 +7,32 @@ export default function ProductGallery({ images, name, icon }) {
   const [zooming, setZooming] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  const imageKey = (images || []).join("|");
+
+  // This component isn't remounted when navigating between products, so a stale index from a
+  // multi-photo product would point past the end of a single-photo one (blank image).
+  useEffect(() => {
+    setActive(0);
+    setLightboxOpen(false);
+  }, [imageKey]);
+
+  // Let Escape close the lightbox, and lock background scroll while it's open.
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setLightboxOpen(false);
+      if (e.key === "ArrowRight") setActive((a) => (a + 1) % images.length);
+      if (e.key === "ArrowLeft") setActive((a) => (a - 1 + images.length) % images.length);
+    };
+    window.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [lightboxOpen, images]);
 
   if (!images || images.length === 0) {
     return (

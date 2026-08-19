@@ -1,24 +1,25 @@
 import express from "express";
 import { query } from "../db.js";
 import { requireAdmin } from "./admin.js";
+import { asyncHandler } from "../lib/asyncHandler.js";
 
 const router = express.Router();
 
 // GET /api/products  (public — used by the storefront)
-router.get("/", async (req, res) => {
+router.get("/", asyncHandler(async (req, res) => {
   const { rows } = await query("SELECT * FROM products ORDER BY id");
   res.json(rows);
-});
+}));
 
 // GET /api/products/:id
-router.get("/:id", async (req, res) => {
+router.get("/:id", asyncHandler(async (req, res) => {
   const { rows } = await query("SELECT * FROM products WHERE id = $1", [Number(req.params.id)]);
   if (!rows[0]) return res.status(404).json({ error: "Product not found" });
   res.json(rows[0]);
-});
+}));
 
 // POST /api/products  (admin only — add a new product)
-router.post("/", requireAdmin, async (req, res) => {
+router.post("/", requireAdmin, asyncHandler(async (req, res) => {
   const { name, cat, price, img, stock, description } = req.body;
   if (!name || !cat || price == null) {
     return res.status(400).json({ error: "Name, category, and price are required" });
@@ -28,10 +29,10 @@ router.post("/", requireAdmin, async (req, res) => {
     [name, cat, Number(price), img || "", Number(stock) || 0, description || ""]
   );
   res.status(201).json(rows[0]);
-});
+}));
 
 // PUT /api/products/:id  (admin only — edit a product)
-router.put("/:id", requireAdmin, async (req, res) => {
+router.put("/:id", requireAdmin, asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
   const { rows: existingRows } = await query("SELECT * FROM products WHERE id = $1", [id]);
   const existing = existingRows[0];
@@ -43,13 +44,13 @@ router.put("/:id", requireAdmin, async (req, res) => {
     [merged.name, merged.cat, merged.price, merged.img, merged.stock, merged.description, id]
   );
   res.json(rows[0]);
-});
+}));
 
 // DELETE /api/products/:id  (admin only)
-router.delete("/:id", requireAdmin, async (req, res) => {
+router.delete("/:id", requireAdmin, asyncHandler(async (req, res) => {
   const { rowCount } = await query("DELETE FROM products WHERE id = $1", [Number(req.params.id)]);
   if (!rowCount) return res.status(404).json({ error: "Product not found" });
   res.json({ ok: true });
-});
+}));
 
 export default router;

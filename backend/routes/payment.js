@@ -1,5 +1,6 @@
 import express from "express";
 import { query } from "../db.js";
+import { asyncHandler } from "../lib/asyncHandler.js";
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ const PAYMOB_BASE = "https://accept.paymob.com/api";
  * الراوت ده بيتفعل تلقائيًا بمجرد ما تحط قيم PAYMOB_* في ملف .env
  */
 
-router.post("/initiate", async (req, res) => {
+router.post("/initiate", asyncHandler(async (req, res) => {
   const { orderId } = req.body;
   const { rows } = await query("SELECT * FROM orders WHERE id = $1", [orderId]);
   const order = rows[0];
@@ -89,7 +90,7 @@ router.post("/initiate", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "An error occurred connecting to the payment gateway" });
   }
-});
+}));
 
 // Paymob بيبعت هنا نتيجة الدفع (webhook) — استخدمه عشان تحدّث حالة الطلب أوتوماتيك
 router.post("/webhook", express.json(), (req, res) => {

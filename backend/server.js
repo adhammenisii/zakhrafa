@@ -14,6 +14,15 @@ import contactRouter from "./routes/contact.js";
 import promoRouter from "./routes/promo.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Fail fast with a clear message rather than surfacing confusing errors on the first request.
+const missingEnv = ["DATABASE_URL", "ADMIN_PASSWORD", "JWT_SECRET"].filter((k) => !process.env[k]);
+if (missingEnv.length) {
+  console.error(`❌ Missing required environment variable(s): ${missingEnv.join(", ")}`);
+  console.error("   Set them in backend/.env locally, or in the Render dashboard when deployed (see DEPLOY.md).");
+  process.exit(1);
+}
+
 const app = express();
 
 app.use(cors());
@@ -41,6 +50,21 @@ if (fs.existsSync(frontendDist)) {
     res.sendFile(path.join(frontendDist, "index.html"));
   });
 }
+
+// Any error forwarded by asyncHandler lands here, so failures always return JSON
+// (never a hanging request or an HTML error page the frontend can't parse).
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+
+  // Client-side faults (e.g. body-parser's 400 on malformed JSON) should report as such
+  // rather than being masked as a server error.
+  const status = err.status || err.statusCode || 500;
+  if (status >= 500) console.error("Unhandled error:", err);
+
+  res.status(status).json({
+    error: status === 400 ? "Invalid request body" : "Something went wrong on our end. Please try again.",
+  });
+});
 
 const PORT = process.env.PORT || 4000;
 ensureSchema()
