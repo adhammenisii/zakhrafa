@@ -5,7 +5,8 @@ import { useStore } from "../lib/store.jsx";
 import { Reveal, INK, MUTED, LINE } from "./ui.jsx";
 
 export default function Footer() {
-  const { setToast } = useStore();
+  const { setToast, content } = useStore();
+  const { instagram, facebook, whatsapp } = content.contact;
 
   return (
     <footer style={{ borderTop: `1px solid ${LINE}`, marginTop: 90 }}>
@@ -30,9 +31,9 @@ export default function Footer() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <span style={{ color: INK, fontWeight: 600, fontSize: 13 }}>Follow Us</span>
           <div style={{ display: "flex", gap: 10 }}>
-            <a href="https://instagram.com/zakhrafa_handmade" target="_blank" rel="noreferrer" aria-label="Instagram" className="icon-btn" style={{ color: INK, border: `1px solid ${LINE}`, borderRadius: 999, padding: 9, display: "flex" }}><Instagram size={16} /></a>
-            <a href="https://facebook.com/zakhrafahandmade" target="_blank" rel="noreferrer" aria-label="Facebook" className="icon-btn" style={{ color: INK, border: `1px solid ${LINE}`, borderRadius: 999, padding: 9, display: "flex" }}><Facebook size={16} /></a>
-            <a href="https://wa.me/201000000000" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="icon-btn" style={{ color: INK, border: `1px solid ${LINE}`, borderRadius: 999, padding: 9, display: "flex" }}><MessageCircle size={16} /></a>
+            {instagram && <a href={instagram} target="_blank" rel="noreferrer" aria-label="Instagram" className="icon-btn" style={{ color: INK, border: `1px solid ${LINE}`, borderRadius: 999, padding: 9, display: "flex" }}><Instagram size={16} /></a>}
+            {facebook && <a href={facebook} target="_blank" rel="noreferrer" aria-label="Facebook" className="icon-btn" style={{ color: INK, border: `1px solid ${LINE}`, borderRadius: 999, padding: 9, display: "flex" }}><Facebook size={16} /></a>}
+            {whatsapp && <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="icon-btn" style={{ color: INK, border: `1px solid ${LINE}`, borderRadius: 999, padding: 9, display: "flex" }}><MessageCircle size={16} /></a>}
           </div>
         </div>
       </Reveal>

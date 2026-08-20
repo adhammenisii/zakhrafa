@@ -1,10 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { RECENTLY_VIEWED_KEY, WISHLIST_KEY, RECENTLY_VIEWED_MAX } from "./constants.js";
+import {
+  RECENTLY_VIEWED_KEY,
+  WISHLIST_KEY,
+  RECENTLY_VIEWED_MAX,
+  CATEGORIES,
+  DEFAULT_CONTENT,
+} from "./constants.js";
 
 // Re-exported so existing imports from "lib/store.jsx" keep working.
-export { CATEGORIES } from "./constants.js";
 export { fmt, orderRef } from "./format.js";
+
+// A piece is buyable only if the admin hasn't switched it off *and* there are pieces left.
+export const isAvailable = (product) => product?.in_stock !== false && (product?.stock ?? 0) > 0;
 
 function loadIds(key) {
   try {
@@ -20,6 +28,8 @@ const StoreContext = createContext(null);
 export function StoreProvider({ children }) {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(CATEGORIES);
+  const [content, setContent] = useState(DEFAULT_CONTENT);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
@@ -54,6 +64,35 @@ export function StoreProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
+  // Categories and site copy are admin-editable. Both fall back to the bundled defaults,
+  // so a slow or failed request degrades to the previous hardcoded content rather than
+  // leaving the page blank.
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then((rows) => {
+        if (!Array.isArray(rows) || rows.length === 0) return;
+        // The rest of the app matches products on `cat`, so expose the slug as `id`.
+        setCategories(rows.map((c) => ({ id: c.slug, slug: c.slug, label: c.label, img: c.img })));
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/content")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data || typeof data !== "object") return;
+        setContent({
+          hero: { ...DEFAULT_CONTENT.hero, ...(data.hero || {}) },
+          about: { ...DEFAULT_CONTENT.about, ...(data.about || {}) },
+          contact: { ...DEFAULT_CONTENT.contact, ...(data.contact || {}) },
+          faqs: Array.isArray(data.faqs) ? data.faqs : [],
+        });
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(""), 2200);
@@ -83,7 +122,7 @@ export function StoreProvider({ children }) {
 
     // Decide before updating so the toast always matches what actually happened, and so we
     // never trigger a state update from inside another setter's updater (double-fires in StrictMode).
-    if (stock <= 0) {
+    if (!isAvailable(p)) {
       setToast(`"${p.name}" is out of stock`);
       return;
     }
@@ -237,6 +276,8 @@ export function StoreProvider({ children }) {
 
   const value = {
     products,
+    categories,
+    content,
     loading,
     cart,
     cartItems,

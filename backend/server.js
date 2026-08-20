@@ -12,6 +12,9 @@ import paymentRouter from "./routes/payment.js";
 import adminRouter from "./routes/admin.js";
 import contactRouter from "./routes/contact.js";
 import promoRouter from "./routes/promo.js";
+import categoriesRouter from "./routes/categories.js";
+import contentRouter from "./routes/content.js";
+import mediaRouter from "./routes/media.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -37,6 +40,9 @@ app.use("/api/payment", paymentRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/promo", promoRouter);
+app.use("/api/categories", categoriesRouter);
+app.use("/api/content", contentRouter);
+app.use("/api/media", mediaRouter);
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 

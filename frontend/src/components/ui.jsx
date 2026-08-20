@@ -115,15 +115,22 @@ export function ZakhrafaMark({ size = 64 }) {
 }
 
 // Fills its parent box, showing an animated shimmer placeholder until the photo has actually loaded.
-export function SkeletonImg({ src, alt, objectPosition = "center", imgClassName = "" }) {
+// Pass `eager` for above-the-fold images (the hero): lazy-loading those delays the page's
+// largest paint for no benefit, since they're visible immediately anyway.
+export function SkeletonImg({ src, alt, objectPosition = "center", imgClassName = "", eager = false }) {
   const [loaded, setLoaded] = useState(false);
+
+  // A new src (the admin swapped the photo) needs its own load cycle.
+  useEffect(() => setLoaded(false), [src]);
+
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       {!loaded && <div className="skeleton-shimmer" style={{ position: "absolute", inset: 0 }} />}
       <img
         src={src}
         alt={alt}
-        loading="lazy"
+        loading={eager ? "eager" : "lazy"}
+        fetchpriority={eager ? "high" : undefined}
         onLoad={() => setLoaded(true)}
         className={imgClassName}
         style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition, opacity: loaded ? 1 : 0, transition: "opacity .4s ease" }}

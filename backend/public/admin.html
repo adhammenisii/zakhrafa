@@ -2,223 +2,1235 @@
 <html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8" />
-<title>Zakhrafa Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Zakhrafa Admin</title>
 <style>
+  :root {
+    --ink: #2B2420;
+    --muted: #6B625B;
+    --line: #E6E0D9;
+    --surface: #FAF6F2;
+    --blush: #C98BA0;
+    --ok: #2F6B2F;
+    --ok-bg: #F2F9F2;
+    --err: #B4552F;
+    --err-bg: #FCF4F1;
+    --radius: 8px;
+  }
   * { box-sizing: border-box; }
-  body { font-family: 'Jost', Arial, sans-serif; background: #FAF8F5; color: #262220; margin: 0; padding: 30px; }
-  .wrap { max-width: 900px; margin: 0 auto; }
-  h1 { font-weight: 600; }
-  .card { background: #fff; border: 1px solid #ECE7E1; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-  input, select, textarea { width: 100%; padding: 9px 10px; border: 1px solid #ECE7E1; border-radius: 6px; margin-bottom: 10px; font-family: inherit; font-size: 14px; }
-  button { background: #262220; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 13.5px; }
-  button.secondary { background: none; color: #262220; border: 1px solid #ECE7E1; }
-  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ECE7E1; }
-  .row { display: flex; gap: 10px; align-items: center; }
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; background: #FAF8F5; border: 1px solid #ECE7E1; }
-  #login-screen { max-width: 360px; margin: 80px auto; }
-  .hidden { display: none; }
-  .error { color: #B4552F; font-size: 13px; }
+  body {
+    font-family: 'Jost', 'Segoe UI', Arial, sans-serif;
+    background: #F4F1ED; color: var(--ink); margin: 0; font-size: 14px; line-height: 1.5;
+  }
+  h1, h2, h3 { font-weight: 600; margin: 0; }
+  [hidden] { display: none !important; }
+
+  /* --- login ------------------------------------------------------------ */
+  #login-screen {
+    max-width: 380px; margin: 12vh auto; background: #fff; border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 34px 30px; box-shadow: 0 10px 40px rgba(43,36,32,.08);
+  }
+  #login-screen h1 { font-size: 21px; margin-bottom: 6px; }
+  #login-screen p.sub { color: var(--muted); font-size: 13px; margin: 0 0 22px; }
+
+  /* --- shell ------------------------------------------------------------ */
+  .topbar {
+    background: var(--ink); color: #F3E9DF; padding: 0 22px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .topbar .brand { display: flex; align-items: baseline; gap: 10px; padding: 14px 0; }
+  .topbar .brand strong { font-size: 16px; letter-spacing: .5px; }
+  .topbar .brand span { font-size: 11.5px; opacity: .7; }
+  .topbar .session { font-size: 11.5px; opacity: .75; }
+  nav.tabs { background: #fff; border-bottom: 1px solid var(--line); padding: 0 22px; display: flex; gap: 4px; overflow-x: auto; }
+  nav.tabs button {
+    background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted);
+    padding: 14px 16px; font-family: inherit; font-size: 13.5px; cursor: pointer; white-space: nowrap;
+  }
+  nav.tabs button:hover { color: var(--ink); }
+  nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 500; }
+  main { max-width: 1080px; margin: 0 auto; padding: 26px 22px 80px; }
+
+  /* --- building blocks -------------------------------------------------- */
+  .card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 20px; }
+  .card > h2 { font-size: 16px; margin-bottom: 4px; }
+  .card > p.hint { color: var(--muted); font-size: 12.5px; margin: 0 0 18px; }
+  .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .section-head h2 { font-size: 19px; }
+
+  label.field { display: block; margin-bottom: 14px; }
+  label.field > span.lbl { display: block; font-size: 12px; font-weight: 500; margin-bottom: 5px; }
+  label.field > span.note { display: block; font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  input[type=text], input[type=password], input[type=number], input[type=date], input[type=email], select, textarea {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 5px;
+    font-family: inherit; font-size: 13.5px; color: var(--ink); background: #fff;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ink); }
+  textarea { resize: vertical; min-height: 70px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .row, .row-3 { grid-template-columns: 1fr; } }
+
+  label.check { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 12px; font-size: 13.5px; cursor: pointer; }
+  label.check input { margin-top: 3px; accent-color: var(--ink); }
+  label.check span.note { display: block; font-size: 11.5px; color: var(--muted); }
+
+  button.btn {
+    background: var(--ink); color: #fff; border: none; padding: 10px 18px; border-radius: 5px;
+    cursor: pointer; font-family: inherit; font-size: 13.5px;
+  }
+  button.btn:hover { opacity: .9; }
+  button.btn:disabled { opacity: .5; cursor: default; }
+  button.btn.ghost { background: none; color: var(--ink); border: 1px solid var(--line); }
+  button.btn.ghost:hover { background: var(--surface); }
+  button.btn.danger { background: none; color: var(--err); border: 1px solid #EBD3C9; }
+  button.btn.danger:hover { background: var(--err-bg); }
+  button.btn.sm { padding: 6px 11px; font-size: 12px; }
+  button.icon {
+    background: none; border: 1px solid var(--line); border-radius: 4px; width: 26px; height: 26px;
+    cursor: pointer; color: var(--muted); font-size: 13px; line-height: 1; padding: 0;
+  }
+  button.icon:hover { border-color: var(--ink); color: var(--ink); }
+  button.icon:disabled { opacity: .35; cursor: default; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 9px 10px; border-bottom: 2px solid var(--line); font-size: 11.5px; letter-spacing: .5px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+  td { padding: 11px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .table-wrap { overflow-x: auto; }
+  .thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 4px; background: var(--surface); display: block; }
+  .empty { text-align: center; color: var(--muted); padding: 34px 10px; font-size: 13.5px; }
+  .sub { color: var(--muted); font-size: 12px; }
+
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; background: var(--surface); border: 1px solid var(--line); }
+  .tag.on { background: var(--ok-bg); border-color: #CFE8CF; color: var(--ok); }
+  .tag.off { background: var(--err-bg); border-color: #EBD3C9; color: var(--err); }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .stat { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+  .stat .k { font-size: 11.5px; letter-spacing: .6px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+  .stat .v { font-size: 26px; font-weight: 600; margin-top: 6px; }
+  .stat .v small { font-size: 13px; font-weight: 400; color: var(--muted); }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 780px) { .two-col { grid-template-columns: 1fr; } }
+
+  .msg { padding: 10px 13px; border-radius: 5px; font-size: 13px; margin-bottom: 14px; }
+  .msg.err { background: var(--err-bg); color: var(--err); border: 1px solid #EBD3C9; }
+  .msg.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid #CFE8CF; }
+
+  /* --- image picker ----------------------------------------------------- */
+  .imgs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+  .imgs figure { margin: 0; position: relative; width: 84px; }
+  .imgs img { width: 84px; height: 84px; object-fit: cover; border-radius: 5px; border: 1px solid var(--line); display: block; }
+  .imgs figcaption { font-size: 10.5px; text-align: center; color: var(--muted); margin-top: 3px; }
+  .imgs .main-badge { position: absolute; top: 3px; left: 3px; background: var(--ink); color: #fff; font-size: 9.5px; padding: 1px 5px; border-radius: 3px; }
+  .imgs .ctrls { display: flex; gap: 3px; justify-content: center; margin-top: 3px; }
+  .uploading { font-size: 12px; color: var(--muted); }
+
+  /* --- modal ------------------------------------------------------------ */
+  .backdrop { position: fixed; inset: 0; background: rgba(38,34,32,.5); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal { background: #fff; border-radius: var(--radius); width: 100%; max-width: 620px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(20,12,10,.3); }
+  .modal header { padding: 18px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .modal header h2 { font-size: 17px; }
+  .modal .body { padding: 20px 22px; overflow-y: auto; }
+  .modal footer { padding: 14px 22px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 10px; }
+
+  /* --- toast ------------------------------------------------------------ */
+  #toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 90;
+    background: var(--ink); color: #fff; padding: 11px 20px; border-radius: 5px; font-size: 13.5px;
+    box-shadow: 0 8px 24px rgba(20,12,10,.28); max-width: 90vw;
+  }
+  #toast.err { background: var(--err); }
 </style>
 </head>
 <body>
 
-<div id="login-screen" class="card">
-  <h2>Admin Login</h2>
-  <input id="password" type="password" placeholder="Password" />
-  <button onclick="login()">Log In</button>
-  <div id="login-error" class="error"></div>
+<!-- ============================ LOGIN ============================ -->
+<div id="login-screen">
+  <h1>Zakhrafa Admin</h1>
+  <p class="sub">Sign in to manage your store.</p>
+  <form id="login-form">
+    <label class="field">
+      <span class="lbl">Password</span>
+      <input type="password" id="password" autocomplete="current-password" required />
+    </label>
+    <div id="login-error" class="msg err" hidden></div>
+    <button class="btn" type="submit" id="login-btn" style="width:100%">Log In</button>
+  </form>
 </div>
 
-<div id="dashboard" class="wrap hidden">
-  <div class="row" style="justify-content: space-between;">
-    <h1>Zakhrafa Admin Panel</h1>
-    <button class="secondary" onclick="logout()">Log Out</button>
-  </div>
-
-  <div class="card">
-    <h3>Add New Product</h3>
-    <div class="row">
-      <input id="p-name" placeholder="Product name" />
-      <select id="p-cat">
-        <option value="mosaic">Mosaic Mirrors</option>
-        <option value="pharaonic">Pharaonic Art</option>
-        <option value="ramadan">Occasion Decor</option>
-        <option value="oriental">Oriental Panels</option>
-      </select>
+<!-- ============================ APP ============================ -->
+<div id="app" hidden>
+  <div class="topbar">
+    <div class="brand"><strong>Zakhrafa</strong><span>Admin Panel</span></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="session" id="session-note"></span>
+      <button class="btn ghost sm" id="logout-btn" style="color:#F3E9DF;border-color:rgba(243,233,223,.35)">Log Out</button>
     </div>
-    <div class="row">
-      <input id="p-price" type="number" placeholder="Price" />
-      <input id="p-stock" type="number" placeholder="Stock quantity" />
-    </div>
-    <input id="p-img" placeholder="Product image URL (e.g. /images/products/name.jpg)" />
-    <textarea id="p-desc" placeholder="Short product description"></textarea>
-    <button onclick="addProduct()">Add Product</button>
   </div>
 
-  <div class="card">
-    <h3>Products</h3>
-    <table id="products-table">
-      <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="dashboard">Dashboard</button>
+    <button role="tab" data-tab="products">Products</button>
+    <button role="tab" data-tab="categories">Categories</button>
+    <button role="tab" data-tab="orders">Orders</button>
+    <button role="tab" data-tab="content">Content</button>
+    <button role="tab" data-tab="messages">Messages</button>
+    <button role="tab" data-tab="settings">Settings</button>
+  </nav>
 
-  <div class="card">
-    <h3>Orders</h3>
-    <table id="orders-table">
-      <thead><tr><th>Ref</th><th>Customer</th><th>Phone</th><th>Deliver to</th><th>Total</th><th>Status</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Contact Messages</h3>
-    <table id="messages-table">
-      <thead><tr><th>Name</th><th>Email</th><th>Subject</th><th>Message</th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <main>
+    <section id="tab-dashboard" hidden></section>
+    <section id="tab-products" hidden></section>
+    <section id="tab-categories" hidden></section>
+    <section id="tab-orders" hidden></section>
+    <section id="tab-content" hidden></section>
+    <section id="tab-messages" hidden></section>
+    <section id="tab-settings" hidden></section>
+  </main>
 </div>
+
+<div id="modal-root"></div>
 
 <script>
-const API = ""; // same origin
-let token = localStorage.getItem("zakhrafa_admin_token");
+/* ==========================================================================
+   Zakhrafa admin panel.
 
-const catLabels = { mosaic: "Mosaic Mirrors", pharaonic: "Pharaonic Art", ramadan: "Occasion Decor", oriental: "Oriental Panels" };
-const payLabels = { cod: "Cash on Delivery", vodafone_cash: "Vodafone Cash", card: "Card" };
+   Everything that renders data from the database is built with createElement +
+   textContent. Nothing goes through innerHTML, because order notes, contact
+   messages and product names are all attacker-supplied: a message containing
+   <img src=x onerror=...> must show up as literal text, never execute.
+   ========================================================================== */
 
-if (token) showDashboard();
+const TOKEN_KEY = "zakhrafa_admin_token";
+const ACTIVITY_KEY = "zakhrafa_admin_last_activity";
+const IDLE_LIMIT_MS = 20 * 60 * 1000;   // logged out after this long with no interaction
+const REFRESH_EVERY_MS = 10 * 60 * 1000; // slide the server session forward while active
 
-async function login() {
-  const password = document.getElementById("password").value;
-  const res = await fetch(`${API}/api/admin/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    document.getElementById("login-error").innerText = data.error;
+let token = localStorage.getItem(TOKEN_KEY);
+let lastRefresh = 0;
+
+/* ---------- tiny DOM helper ---------------------------------------------- */
+// el("div", { class: "card" }, "text", childNode, ...) — strings always become
+// text nodes, so no caller can inject markup by accident.
+function el(tag, props, ...children) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props || {})) {
+    if (value === null || value === undefined || value === false) continue;
+    if (key === "class") node.className = value;
+    else if (key === "style") node.setAttribute("style", value);
+    else if (key === "html") throw new Error("raw html is not allowed");
+    else if (key.startsWith("on") && typeof value === "function") node.addEventListener(key.slice(2), value);
+    else if (key === "value") node.value = value;
+    else if (key === "checked" || key === "disabled" || key === "hidden" || key === "selected" || key === "multiple" || key === "required") node[key] = Boolean(value);
+    else node.setAttribute(key, value);
+  }
+  for (const child of children.flat()) {
+    if (child === null || child === undefined || child === false) continue;
+    node.appendChild(child instanceof Node ? child : document.createTextNode(String(child)));
+  }
+  return node;
+}
+const clear = (node) => { while (node.firstChild) node.removeChild(node.firstChild); return node; };
+const fmtEGP = (n) => "EGP " + Number(n || 0).toLocaleString("en-US");
+const orderRef = (id) => "ZKH-" + String(id).padStart(5, "0");
+const fmtDate = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) +
+    " · " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+};
+
+/* ---------- toast --------------------------------------------------------- */
+let toastTimer;
+function toast(message, isError) {
+  document.getElementById("toast")?.remove();
+  const node = el("div", { id: "toast", class: isError ? "err" : "" }, message);
+  document.body.appendChild(node);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => node.remove(), 3200);
+}
+
+/* ---------- API ----------------------------------------------------------- */
+async function api(path, options = {}) {
+  const opts = { ...options, headers: { ...(options.headers || {}) } };
+  if (token) opts.headers.Authorization = "Bearer " + token;
+  if (opts.body && !(opts.body instanceof FormData)) {
+    opts.headers["Content-Type"] = "application/json";
+    opts.body = JSON.stringify(opts.body);
+  }
+
+  const res = await fetch(path, opts);
+  if (res.status === 401) {
+    logout("Your session expired. Please log in again.");
+    throw new Error("Session expired");
+  }
+  const isJson = (res.headers.get("content-type") || "").includes("application/json");
+  const data = isJson ? await res.json().catch(() => ({})) : null;
+  if (!res.ok) throw new Error((data && data.error) || "Something went wrong. Please try again.");
+  return data;
+}
+
+/* ---------- session ------------------------------------------------------- */
+function markActivity() { localStorage.setItem(ACTIVITY_KEY, String(Date.now())); }
+
+function idleMs() {
+  const last = Number(localStorage.getItem(ACTIVITY_KEY) || 0);
+  return last ? Date.now() - last : Infinity;
+}
+
+async function sessionTick() {
+  if (!token) return;
+  if (idleMs() > IDLE_LIMIT_MS) {
+    logout("You were logged out after 20 minutes of inactivity.");
     return;
   }
-  token = data.token;
-  localStorage.setItem("zakhrafa_admin_token", token);
-  showDashboard();
-}
+  const minutesLeft = Math.max(0, Math.ceil((IDLE_LIMIT_MS - idleMs()) / 60000));
+  document.getElementById("session-note").textContent = "Auto log-out in " + minutesLeft + " min";
 
-function logout() {
-  localStorage.removeItem("zakhrafa_admin_token");
-  location.reload();
-}
-
-function showDashboard() {
-  document.getElementById("login-screen").classList.add("hidden");
-  document.getElementById("dashboard").classList.remove("hidden");
-  loadProducts();
-  loadOrders();
-  loadMessages();
-}
-
-async function loadProducts() {
-  const res = await fetch(`${API}/api/products`);
-  const products = await res.json();
-  const tbody = document.querySelector("#products-table tbody");
-  tbody.innerHTML = products.map(p => `
-    <tr>
-      <td>${p.name}</td>
-      <td><span class="tag">${catLabels[p.cat] || p.cat}</span></td>
-      <td>EGP ${p.price}</td>
-      <td>${p.stock ?? "-"}</td>
-      <td><button class="secondary" onclick="deleteProduct(${p.id})">Delete</button></td>
-    </tr>
-  `).join("");
-}
-
-async function addProduct() {
-  const body = {
-    name: document.getElementById("p-name").value,
-    cat: document.getElementById("p-cat").value,
-    price: document.getElementById("p-price").value,
-    stock: document.getElementById("p-stock").value,
-    img: document.getElementById("p-img").value,
-    description: document.getElementById("p-desc").value,
-  };
-  const res = await fetch(`${API}/api/products`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify(body),
-  });
-  if (res.ok) {
-    document.getElementById("p-name").value = "";
-    document.getElementById("p-price").value = "";
-    document.getElementById("p-stock").value = "";
-    document.getElementById("p-img").value = "";
-    document.getElementById("p-desc").value = "";
-    loadProducts();
-  } else {
-    alert((await res.json()).error);
+  if (Date.now() - lastRefresh > REFRESH_EVERY_MS) {
+    lastRefresh = Date.now();
+    try {
+      const data = await api("/api/admin/refresh", { method: "POST" });
+      token = data.token;
+      localStorage.setItem(TOKEN_KEY, token);
+    } catch { /* api() already handled a 401 by logging out */ }
   }
 }
 
-async function deleteProduct(id) {
-  if (!confirm("Are you sure you want to delete this product?")) return;
-  await fetch(`${API}/api/products/${id}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  loadProducts();
+function logout(message) {
+  token = null;
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(ACTIVITY_KEY);
+  document.getElementById("app").hidden = true;
+  document.getElementById("login-screen").hidden = false;
+  document.getElementById("password").value = "";
+  const box = document.getElementById("login-error");
+  if (message) { box.textContent = message; box.hidden = false; } else { box.hidden = true; }
+  clear(document.getElementById("modal-root"));
 }
 
-async function loadOrders() {
-  const res = await fetch(`${API}/api/orders`, { headers: { Authorization: `Bearer ${token}` } });
-  if (!res.ok) return;
-  const orders = await res.json();
-  const tbody = document.querySelector("#orders-table tbody");
-  tbody.innerHTML = orders.slice().reverse().map(o => {
-    const c = o.customer || {};
+document.getElementById("logout-btn").addEventListener("click", () => logout());
+
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const button = document.getElementById("login-btn");
+  const box = document.getElementById("login-error");
+  const password = document.getElementById("password").value;
+
+  box.hidden = true;
+  button.disabled = true;
+  button.textContent = "Signing in…";
+  try {
+    const data = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    }).then(async (r) => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.error || "Incorrect password");
+      return body;
+    });
+    token = data.token;
+    localStorage.setItem(TOKEN_KEY, token);
+    markActivity();
+    await showApp();
+  } catch (err) {
+    box.textContent = err.message;
+    box.hidden = false;
+  } finally {
+    button.disabled = false;
+    button.textContent = "Log In";
+  }
+});
+
+async function showApp() {
+  document.getElementById("login-screen").hidden = true;
+  document.getElementById("app").hidden = false;
+  markActivity();
+  lastRefresh = Date.now();
+  await openTab(location.hash.replace("#", "") || "dashboard");
+}
+
+/* ---------- tabs ---------------------------------------------------------- */
+const TABS = {
+  dashboard: renderDashboard,
+  products: renderProducts,
+  categories: renderCategories,
+  orders: renderOrders,
+  content: renderContent,
+  messages: renderMessages,
+  settings: renderSettings,
+};
+
+async function openTab(name) {
+  if (!TABS[name]) name = "dashboard";
+  location.hash = name;
+  for (const button of document.querySelectorAll("nav.tabs button")) {
+    button.setAttribute("aria-selected", String(button.dataset.tab === name));
+  }
+  for (const section of document.querySelectorAll("main section")) {
+    section.hidden = section.id !== "tab-" + name;
+  }
+  const host = document.getElementById("tab-" + name);
+  clear(host).appendChild(el("p", { class: "empty" }, "Loading…"));
+  try {
+    await TABS[name](host);
+  } catch (err) {
+    clear(host).appendChild(el("div", { class: "msg err" }, err.message));
+  }
+}
+
+for (const button of document.querySelectorAll("nav.tabs button")) {
+  button.addEventListener("click", () => openTab(button.dataset.tab));
+}
+
+/* ---------- reusable pieces ----------------------------------------------- */
+function field(label, input, note) {
+  return el("label", { class: "field" },
+    el("span", { class: "lbl" }, label),
+    input,
+    note ? el("span", { class: "note" }, note) : null
+  );
+}
+
+function checkbox(label, checked, note) {
+  const input = el("input", { type: "checkbox", checked });
+  const wrap = el("label", { class: "check" }, input, el("span", {}, label, note ? el("span", { class: "note" }, note) : null));
+  wrap.input = input;
+  return wrap;
+}
+
+function confirmDialog(message) {
+  return window.confirm(message);
+}
+
+function modal(title, bodyNodes, onSave, saveLabel) {
+  const root = document.getElementById("modal-root");
+  const close = () => clear(root);
+
+  const saveButton = el("button", { class: "btn", onclick: async () => {
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving…";
+    try {
+      await onSave();
+      close();
+    } catch (err) {
+      toast(err.message, true);
+      saveButton.disabled = false;
+      saveButton.textContent = saveLabel || "Save";
+    }
+  } }, saveLabel || "Save");
+
+  clear(root).appendChild(
+    el("div", { class: "backdrop", onclick: (e) => { if (e.target.classList.contains("backdrop")) close(); } },
+      el("div", { class: "modal" },
+        el("header", {}, el("h2", {}, title), el("button", { class: "icon", onclick: close, "aria-label": "Close" }, "✕")),
+        el("div", { class: "body" }, bodyNodes),
+        el("footer", {}, el("button", { class: "btn ghost", onclick: close }, "Cancel"), saveButton)
+      )
+    )
+  );
+}
+
+// An editable list of image URLs with upload, reorder and remove. `urls` is mutated
+// in place so the caller just reads it back when saving.
+function imagePicker(urls, options = {}) {
+  const single = Boolean(options.single);
+  const wrap = el("div", {});
+  const strip = el("div", { class: "imgs" });
+  const status = el("div", { class: "uploading" });
+
+  function draw() {
+    clear(strip);
+    if (urls.length === 0) {
+      strip.appendChild(el("p", { class: "sub", style: "margin:0" }, "No image yet."));
+    }
+    urls.forEach((url, i) => {
+      const figure = el("figure", {},
+        el("img", { src: url, alt: "" }),
+        !single && i === 0 ? el("span", { class: "main-badge" }, "MAIN") : null,
+        el("div", { class: "ctrls" },
+          !single ? el("button", { class: "icon", type: "button", title: "Move left", disabled: i === 0,
+            onclick: () => { [urls[i - 1], urls[i]] = [urls[i], urls[i - 1]]; draw(); } }, "‹") : null,
+          el("button", { class: "icon", type: "button", title: "Remove",
+            onclick: () => { urls.splice(i, 1); draw(); } }, "✕"),
+          !single ? el("button", { class: "icon", type: "button", title: "Move right", disabled: i === urls.length - 1,
+            onclick: () => { [urls[i + 1], urls[i]] = [urls[i], urls[i + 1]]; draw(); } }, "›") : null
+        )
+      );
+      strip.appendChild(figure);
+    });
+  }
+
+  const fileInput = el("input", { type: "file", accept: "image/*", multiple: !single, style: "font-size:12.5px" });
+  fileInput.addEventListener("change", async () => {
+    if (!fileInput.files.length) return;
+    const form = new FormData();
+    for (const file of fileInput.files) form.append("images", file);
+    status.textContent = "Uploading…";
+    try {
+      const saved = await api("/api/media", { method: "POST", body: form });
+      if (single) urls.length = 0;
+      for (const item of saved) urls.push(item.url);
+      draw();
+      status.textContent = "";
+      toast(saved.length + " image(s) uploaded");
+    } catch (err) {
+      status.textContent = "";
+      toast(err.message, true);
+    }
+    fileInput.value = "";
+  });
+
+  const manual = el("input", { type: "text", placeholder: "…or paste an image path, e.g. /images/products/tray.jpg" });
+  const addManual = el("button", { class: "btn ghost sm", type: "button", onclick: () => {
+    const value = manual.value.trim();
+    if (!value) return;
+    if (single) urls.length = 0;
+    urls.push(value);
+    manual.value = "";
+    draw();
+  } }, "Add");
+
+  draw();
+  wrap.append(
+    strip,
+    status,
+    el("div", { style: "margin:8px 0 6px" }, fileInput),
+    el("div", { class: "btn-row" }, manual, addManual)
+  );
+  return wrap;
+}
+
+/* ========================== DASHBOARD ==================================== */
+async function renderDashboard(host) {
+  const stats = await api("/api/admin/stats");
+  clear(host);
+
+  host.appendChild(el("div", { class: "section-head" }, el("h2", {}, "Dashboard")));
+
+  const stat = (label, value, sub) => el("div", { class: "stat" },
+    el("div", { class: "k" }, label),
+    el("div", { class: "v" }, value, sub ? el("small", {}, " " + sub) : null)
+  );
+
+  host.appendChild(el("div", { class: "stats" },
+    stat("Orders today", String(stats.today.orders), "· " + fmtEGP(stats.today.revenue)),
+    stat("Orders this week", String(stats.week.orders), "· " + fmtEGP(stats.week.revenue)),
+    stat("Total revenue", fmtEGP(stats.allTime.revenue), "· " + stats.allTime.orders + " orders"),
+    stat("Awaiting action", String(stats.pendingOrders), "pending")
+  ));
+
+  const bestSellers = el("div", { class: "card" },
+    el("h2", {}, "Best sellers"),
+    el("p", { class: "hint" }, "By units sold, excluding cancelled orders.")
+  );
+  if (stats.bestSellers.length === 0) {
+    bestSellers.appendChild(el("p", { class: "empty" }, "No sales yet."));
+  } else {
+    const table = el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Product"), el("th", {}, "Units"))));
+    const body = el("tbody", {});
+    for (const row of stats.bestSellers) {
+      body.appendChild(el("tr", {}, el("td", {}, row.name), el("td", {}, String(row.qty))));
+    }
+    table.appendChild(body);
+    bestSellers.appendChild(el("div", { class: "table-wrap" }, table));
+  }
+
+  const lowStock = el("div", { class: "card" },
+    el("h2", {}, "Low stock"),
+    el("p", { class: "hint" }, "Products with 2 or fewer pieces left.")
+  );
+  if (stats.lowStock.length === 0) {
+    lowStock.appendChild(el("p", { class: "empty" }, "Nothing running low."));
+  } else {
+    const table = el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Product"), el("th", {}, "Left"))));
+    const body = el("tbody", {});
+    for (const row of stats.lowStock) {
+      body.appendChild(el("tr", {},
+        el("td", {}, row.name),
+        el("td", {}, el("span", { class: "tag " + (row.stock <= 0 ? "off" : "") }, String(row.stock)))
+      ));
+    }
+    table.appendChild(body);
+    lowStock.appendChild(el("div", { class: "table-wrap" }, table));
+  }
+
+  host.appendChild(el("div", { class: "two-col" }, bestSellers, lowStock));
+}
+
+/* ========================== PRODUCTS ===================================== */
+async function renderProducts(host) {
+  const [products, categories] = await Promise.all([api("/api/products"), api("/api/categories")]);
+  clear(host);
+
+  host.appendChild(el("div", { class: "section-head" },
+    el("h2", {}, "Products"),
+    el("button", { class: "btn", onclick: () => productForm(null, categories) }, "+ Add Product")
+  ));
+
+  if (products.length === 0) {
+    host.appendChild(el("div", { class: "card" }, el("p", { class: "empty" }, "No products yet. Add your first one above.")));
+    return;
+  }
+
+  const catLabel = (slug) => (categories.find((c) => c.slug === slug) || {}).label || slug;
+  const table = el("table", {}, el("thead", {}, el("tr", {},
+    el("th", {}, ""), el("th", {}, "Product"), el("th", {}, "Category"), el("th", {}, "Price"),
+    el("th", {}, "Stock"), el("th", {}, "Featured"), el("th", {}, "Order"), el("th", {}, "")
+  )));
+  const body = el("tbody", {});
+
+  const reorder = async (index, delta) => {
+    const ids = products.map((p) => p.id);
+    const target = index + delta;
+    if (target < 0 || target >= ids.length) return;
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    try {
+      await api("/api/products/order/all", { method: "PUT", body: { ids } });
+      await openTab("products");
+    } catch (err) { toast(err.message, true); }
+  };
+
+  products.forEach((product, i) => {
+    const available = product.in_stock !== false && (product.stock ?? 0) > 0;
+
+    const featuredBox = el("input", { type: "checkbox", checked: Boolean(product.featured), "aria-label": "Featured" });
+    featuredBox.addEventListener("change", async () => {
+      try {
+        await api("/api/products/" + product.id, { method: "PUT", body: { featured: featuredBox.checked } });
+        toast(featuredBox.checked ? "Shown on the homepage" : "Removed from the homepage");
+      } catch (err) {
+        featuredBox.checked = !featuredBox.checked;
+        toast(err.message, true);
+      }
+    });
+
+    body.appendChild(el("tr", {},
+      el("td", {}, product.img ? el("img", { class: "thumb", src: product.img, alt: "" }) : el("div", { class: "thumb" })),
+      el("td", {},
+        el("div", { style: "font-weight:500" }, product.name),
+        el("div", { class: "sub" }, available ? "In stock" : "Out of stock")
+      ),
+      el("td", {}, el("span", { class: "tag" }, catLabel(product.cat))),
+      el("td", {}, fmtEGP(product.price)),
+      el("td", {}, el("span", { class: "tag " + (product.stock > 0 ? "" : "off") }, String(product.stock ?? 0))),
+      el("td", {}, featuredBox),
+      el("td", {}, el("div", { class: "btn-row" },
+        el("button", { class: "icon", title: "Move up", disabled: i === 0, onclick: () => reorder(i, -1) }, "↑"),
+        el("button", { class: "icon", title: "Move down", disabled: i === products.length - 1, onclick: () => reorder(i, 1) }, "↓")
+      )),
+      el("td", {}, el("div", { class: "btn-row" },
+        el("button", { class: "btn ghost sm", onclick: () => productForm(product, categories) }, "Edit"),
+        el("button", { class: "btn danger sm", onclick: async () => {
+          if (!confirmDialog('Delete "' + product.name + '"? This cannot be undone.')) return;
+          try {
+            await api("/api/products/" + product.id, { method: "DELETE" });
+            toast("Product deleted");
+            await openTab("products");
+          } catch (err) { toast(err.message, true); }
+        } }, "Delete")
+      ))
+    ));
+  });
+
+  table.appendChild(body);
+  host.appendChild(el("div", { class: "card" }, el("div", { class: "table-wrap" }, table)));
+}
+
+function productForm(product, categories) {
+  const isEdit = Boolean(product);
+  const name = el("input", { type: "text", value: product?.name || "" });
+  const description = el("textarea", {}, product?.description || "");
+  const price = el("input", { type: "number", min: "0", step: "1", value: product?.price ?? "" });
+  const stock = el("input", { type: "number", min: "0", step: "1", value: product?.stock ?? 0 });
+
+  const category = el("select", {});
+  for (const cat of categories) {
+    category.appendChild(el("option", { value: cat.slug, selected: product?.cat === cat.slug }, cat.label));
+  }
+
+  const inStock = checkbox("Available for sale", product ? product.in_stock !== false : true,
+    "Untick to show it as Out of Stock even while pieces remain in the count.");
+  const featured = checkbox("Feature on the homepage", Boolean(product?.featured));
+
+  const images = Array.isArray(product?.images) && product.images.length
+    ? product.images.slice()
+    : product?.img ? [product.img] : [];
+
+  modal(isEdit ? "Edit Product" : "Add Product", [
+    field("Product name", name),
+    field("Description", description),
+    el("div", { class: "row" }, field("Price (EGP)", price), field("Stock quantity", stock)),
+    field("Category", category),
+    el("label", { class: "field" }, el("span", { class: "lbl" }, "Photos"),
+      imagePicker(images), el("span", { class: "note" }, "The first photo is the one shown on the product card.")),
+    inStock,
+    featured,
+  ], async () => {
+    const body = {
+      name: name.value.trim(),
+      description: description.value.trim(),
+      price: Number(price.value),
+      stock: Number(stock.value),
+      cat: category.value,
+      images,
+      inStock: inStock.input.checked,
+      featured: featured.input.checked,
+    };
+    if (!body.name) throw new Error("Product name is required");
+    if (!body.cat) throw new Error("Pick a category — add one first if the list is empty");
+    if (!Number.isFinite(body.price) || body.price < 0) throw new Error("Enter a valid price");
+
+    await api(isEdit ? "/api/products/" + product.id : "/api/products", {
+      method: isEdit ? "PUT" : "POST",
+      body,
+    });
+    toast(isEdit ? "Product updated" : "Product added");
+    await openTab("products");
+  }, isEdit ? "Save Changes" : "Add Product");
+}
+
+/* ========================== CATEGORIES =================================== */
+async function renderCategories(host) {
+  const categories = await api("/api/categories");
+  clear(host);
+
+  host.appendChild(el("div", { class: "section-head" },
+    el("h2", {}, "Categories"),
+    el("button", { class: "btn", onclick: () => categoryForm(null) }, "+ Add Category")
+  ));
+
+  const reorder = async (index, delta) => {
+    const ids = categories.map((c) => c.id);
+    const target = index + delta;
+    if (target < 0 || target >= ids.length) return;
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    try {
+      await api("/api/categories/order/all", { method: "PUT", body: { ids } });
+      await openTab("categories");
+    } catch (err) { toast(err.message, true); }
+  };
+
+  if (categories.length === 0) {
+    host.appendChild(el("div", { class: "card" }, el("p", { class: "empty" }, "No categories yet.")));
+    return;
+  }
+
+  const table = el("table", {}, el("thead", {}, el("tr", {},
+    el("th", {}, ""), el("th", {}, "Name"), el("th", {}, "URL id"), el("th", {}, "Order"), el("th", {}, "")
+  )));
+  const body = el("tbody", {});
+
+  categories.forEach((cat, i) => {
+    body.appendChild(el("tr", {},
+      el("td", {}, cat.img ? el("img", { class: "thumb", src: cat.img, alt: "" }) : el("div", { class: "thumb" })),
+      el("td", { style: "font-weight:500" }, cat.label),
+      el("td", {}, el("span", { class: "sub" }, cat.slug)),
+      el("td", {}, el("div", { class: "btn-row" },
+        el("button", { class: "icon", title: "Move up", disabled: i === 0, onclick: () => reorder(i, -1) }, "↑"),
+        el("button", { class: "icon", title: "Move down", disabled: i === categories.length - 1, onclick: () => reorder(i, 1) }, "↓")
+      )),
+      el("td", {}, el("div", { class: "btn-row" },
+        el("button", { class: "btn ghost sm", onclick: () => categoryForm(cat) }, "Edit"),
+        el("button", { class: "btn danger sm", onclick: async () => {
+          if (!confirmDialog('Delete the "' + cat.label + '" category?')) return;
+          try {
+            await api("/api/categories/" + cat.id, { method: "DELETE" });
+            toast("Category deleted");
+            await openTab("categories");
+          } catch (err) { toast(err.message, true); }
+        } }, "Delete")
+      ))
+    ));
+  });
+
+  table.appendChild(body);
+  host.appendChild(el("div", { class: "card" }, el("div", { class: "table-wrap" }, table)));
+}
+
+function categoryForm(cat) {
+  const isEdit = Boolean(cat);
+  const label = el("input", { type: "text", value: cat?.label || "" });
+  const slug = el("input", { type: "text", value: cat?.slug || "" });
+  const images = cat?.img ? [cat.img] : [];
+
+  modal(isEdit ? "Edit Category" : "Add Category", [
+    field("Category name", label, "Shown on the homepage tiles and filter buttons."),
+    isEdit ? field("URL id", slug, "Appears in links like /?cat=oriental. Changing it moves every product in this category across automatically.") : null,
+    el("label", { class: "field" }, el("span", { class: "lbl" }, "Tile image"), imagePicker(images, { single: true })),
+  ].filter(Boolean), async () => {
+    const body = { label: label.value.trim(), img: images[0] || null };
+    if (isEdit) body.slug = slug.value.trim();
+    if (!body.label) throw new Error("Category name is required");
+
+    await api(isEdit ? "/api/categories/" + cat.id : "/api/categories", {
+      method: isEdit ? "PUT" : "POST",
+      body,
+    });
+    toast(isEdit ? "Category updated" : "Category added");
+    await openTab("categories");
+  }, isEdit ? "Save Changes" : "Add Category");
+}
+
+/* ========================== ORDERS ======================================= */
+const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"];
+const STATUS_LABELS = {
+  pending: "Pending", processing: "Processing", shipped: "Shipped",
+  delivered: "Delivered", cancelled: "Cancelled",
+};
+const PAYMENT_LABELS = { cod: "Cash on Delivery", vodafone_cash: "Vodafone Cash", card: "Card" };
+
+const orderFilters = { status: "", q: "", from: "", to: "" };
+
+async function renderOrders(host) {
+  clear(host);
+  host.appendChild(el("div", { class: "section-head" }, el("h2", {}, "Orders")));
+
+  const statusSelect = el("select", {}, el("option", { value: "" }, "All statuses"),
+    ...ORDER_STATUSES.map((s) => el("option", { value: s, selected: orderFilters.status === s }, STATUS_LABELS[s])));
+  const search = el("input", { type: "text", placeholder: "Search name, phone, item, ZKH-00012…", value: orderFilters.q });
+  const from = el("input", { type: "date", value: orderFilters.from });
+  const to = el("input", { type: "date", value: orderFilters.to });
+
+  const results = el("div", { class: "card" }, el("p", { class: "empty" }, "Loading…"));
+
+  const applyFilters = async () => {
+    orderFilters.status = statusSelect.value;
+    orderFilters.q = search.value.trim();
+    orderFilters.from = from.value;
+    orderFilters.to = to.value;
+
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(orderFilters)) if (value) params.set(key, value);
+
+    clear(results).appendChild(el("p", { class: "empty" }, "Loading…"));
+    try {
+      const orders = await api("/api/orders" + (params.toString() ? "?" + params : ""));
+      drawOrders(results, orders);
+    } catch (err) {
+      clear(results).appendChild(el("div", { class: "msg err" }, err.message));
+    }
+  };
+
+  statusSelect.addEventListener("change", applyFilters);
+  from.addEventListener("change", applyFilters);
+  to.addEventListener("change", applyFilters);
+  let searchTimer;
+  search.addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(applyFilters, 350); });
+
+  host.appendChild(el("div", { class: "card" },
+    el("div", { class: "row" },
+      field("Status", statusSelect),
+      field("Search", search)
+    ),
+    el("div", { class: "row" },
+      field("From date", from),
+      field("To date", to)
+    ),
+    el("div", { class: "btn-row" },
+      el("button", { class: "btn ghost sm", onclick: () => {
+        statusSelect.value = ""; search.value = ""; from.value = ""; to.value = "";
+        applyFilters();
+      } }, "Clear filters")
+    )
+  ));
+  host.appendChild(results);
+
+  await applyFilters();
+}
+
+function drawOrders(host, orders) {
+  clear(host);
+  if (orders.length === 0) {
+    host.appendChild(el("p", { class: "empty" }, "No orders match these filters."));
+    return;
+  }
+
+  host.appendChild(el("p", { class: "hint", style: "margin:0 0 14px" },
+    orders.length + " order" + (orders.length === 1 ? "" : "s")));
+
+  const table = el("table", {}, el("thead", {}, el("tr", {},
+    el("th", {}, "Ref"), el("th", {}, "Date"), el("th", {}, "Customer"),
+    el("th", {}, "Deliver to"), el("th", {}, "Items"), el("th", {}, "Total"), el("th", {}, "Status")
+  )));
+  const body = el("tbody", {});
+
+  for (const order of orders) {
+    const c = order.customer || {};
     const region = [c.city, c.governorate, c.postalCode].filter(Boolean).join(", ");
-    const ref = "ZKH-" + String(o.id).padStart(5, "0");
-    return `
-    <tr>
-      <td>${ref}</td>
-      <td>${c.name || "-"}${c.email ? `<br><span style="color:#8A8079;font-size:12px">${c.email}</span>` : ""}</td>
-      <td>${c.phone || "-"}</td>
-      <td style="max-width:260px">
-        ${c.address || "-"}
-        ${region ? `<br><span style="color:#8A8079;font-size:12px">${region}</span>` : ""}
-        ${c.notes ? `<br><span style="color:#8A8079;font-size:12px;font-style:italic">Note: ${c.notes}</span>` : ""}
-      </td>
-      <td>EGP ${o.total}${c.paymentMethod ? `<br><span style="color:#8A8079;font-size:12px">${payLabels[c.paymentMethod] || c.paymentMethod}</span>` : ""}</td>
-      <td><span class="tag">${o.status}</span></td>
-    </tr>`;
-  }).join("") || "<tr><td colspan='6'>No orders yet</td></tr>";
+
+    const statusSelect = el("select", { style: "min-width:120px" },
+      ...ORDER_STATUSES.map((s) => el("option", { value: s, selected: order.status === s }, STATUS_LABELS[s])));
+    statusSelect.addEventListener("change", async () => {
+      const previous = order.status;
+      try {
+        await api("/api/orders/" + order.id + "/status", { method: "PUT", body: { status: statusSelect.value } });
+        order.status = statusSelect.value;
+        toast(orderRef(order.id) + " → " + STATUS_LABELS[statusSelect.value]);
+      } catch (err) {
+        statusSelect.value = previous;
+        toast(err.message, true);
+      }
+    });
+
+    const items = el("td", {});
+    for (const item of order.items || []) {
+      items.appendChild(el("div", {}, item.name, el("span", { class: "sub" }, " × " + item.qty)));
+    }
+
+    const deliverTo = el("td", { style: "max-width:230px" }, c.address || "—");
+    if (region) deliverTo.appendChild(el("div", { class: "sub" }, region));
+    if (c.notes) deliverTo.appendChild(el("div", { class: "sub", style: "font-style:italic" }, "Note: " + c.notes));
+
+    const customer = el("td", {}, c.name || "—", el("div", { class: "sub" }, c.phone || ""));
+    if (c.email) customer.appendChild(el("div", { class: "sub" }, c.email));
+
+    const total = el("td", {}, fmtEGP(order.total));
+    if (c.paymentMethod) total.appendChild(el("div", { class: "sub" }, PAYMENT_LABELS[c.paymentMethod] || c.paymentMethod));
+    if (order.discount > 0) total.appendChild(el("div", { class: "sub" }, "−" + fmtEGP(order.discount) + (order.promoCode ? " (" + order.promoCode + ")" : "")));
+
+    body.appendChild(el("tr", {},
+      el("td", { style: "white-space:nowrap" }, orderRef(order.id)),
+      el("td", { class: "sub", style: "white-space:nowrap" }, fmtDate(order.createdAt)),
+      customer,
+      deliverTo,
+      items,
+      total,
+      el("td", {}, statusSelect)
+    ));
+  }
+
+  table.appendChild(body);
+  host.appendChild(el("div", { class: "table-wrap" }, table));
 }
 
-async function loadMessages() {
-  const res = await fetch(`${API}/api/contact`, { headers: { Authorization: `Bearer ${token}` } });
-  if (!res.ok) return;
-  const messages = await res.json();
-  const tbody = document.querySelector("#messages-table tbody");
-  tbody.innerHTML = messages.slice().reverse().map(m => `
-    <tr>
-      <td>${m.name}</td>
-      <td>${m.email}</td>
-      <td>${m.subject || "-"}</td>
-      <td style="max-width:280px;">${m.message}</td>
-      <td><button class="secondary" onclick="deleteMessage(${m.id})">Delete</button></td>
-    </tr>
-  `).join("") || "<tr><td colspan='5'>No messages yet</td></tr>";
+/* ========================== CONTENT ====================================== */
+async function renderContent(host) {
+  const content = await api("/api/content");
+  clear(host);
+  host.appendChild(el("div", { class: "section-head" }, el("h2", {}, "Website Content")));
+
+  host.appendChild(heroCard(content.hero || {}));
+  host.appendChild(aboutCard(content.about || {}));
+  host.appendChild(faqCard(content.faqs || []));
 }
 
-async function deleteMessage(id) {
-  if (!confirm("Delete this message?")) return;
-  await fetch(`${API}/api/contact/${id}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+function heroCard(hero) {
+  const eyebrow = el("input", { type: "text", value: hero.eyebrow || "" });
+  const title = el("input", { type: "text", value: hero.title || "" });
+  const subtitle = el("textarea", {}, hero.subtitle || "");
+  const ctaLabel = el("input", { type: "text", value: hero.ctaLabel || "" });
+  const images = hero.image ? [hero.image] : [];
+
+  const save = el("button", { class: "btn", onclick: async () => {
+    save.disabled = true;
+    try {
+      await api("/api/content/hero", { method: "PUT", body: {
+        eyebrow: eyebrow.value, title: title.value, subtitle: subtitle.value,
+        ctaLabel: ctaLabel.value, image: images[0] || hero.image || "",
+      } });
+      toast("Homepage hero saved");
+    } catch (err) { toast(err.message, true); }
+    save.disabled = false;
+  } }, "Save Hero");
+
+  return el("div", { class: "card" },
+    el("h2", {}, "Homepage Hero"),
+    el("p", { class: "hint" }, "The big banner at the very top of the homepage."),
+    field("Small label above the heading", eyebrow, "e.g. HANDMADE · EGYPT"),
+    field("Heading", title),
+    field("Paragraph", subtitle),
+    field("Button text", ctaLabel),
+    el("label", { class: "field" }, el("span", { class: "lbl" }, "Background photo"), imagePicker(images, { single: true })),
+    save
+  );
+}
+
+function aboutCard(about) {
+  const intro = el("textarea", { style: "min-height:110px" }, about.intro || "");
+  const storyTitle = el("input", { type: "text", value: about.storyTitle || "" });
+  const storyText = el("textarea", {}, about.storyText || "");
+  const heroImages = about.heroImage ? [about.heroImage] : [];
+
+  const cards = (about.cards || []).map((card) => {
+    const cardTitle = el("input", { type: "text", value: card.title || "" });
+    const cardBody = el("textarea", {}, card.body || "");
+    const cardImages = card.image ? [card.image] : [];
+    return {
+      node: el("div", { class: "card", style: "background:var(--surface)" },
+        field("Card heading", cardTitle),
+        field("Card text", cardBody),
+        el("label", { class: "field" }, el("span", { class: "lbl" }, "Card photo"), imagePicker(cardImages, { single: true }))
+      ),
+      read: () => ({ title: cardTitle.value, body: cardBody.value, image: cardImages[0] || "" }),
+    };
   });
-  loadMessages();
+
+  const save = el("button", { class: "btn", onclick: async () => {
+    save.disabled = true;
+    try {
+      await api("/api/content/about", { method: "PUT", body: {
+        heroImage: heroImages[0] || about.heroImage || "",
+        intro: intro.value,
+        storyTitle: storyTitle.value,
+        storyText: storyText.value,
+        cards: cards.map((c) => c.read()),
+      } });
+      toast("About page saved");
+    } catch (err) { toast(err.message, true); }
+    save.disabled = false;
+  } }, "Save About Page");
+
+  return el("div", { class: "card" },
+    el("h2", {}, "About Us Page"),
+    el("p", { class: "hint" }, "The banner, the opening paragraph, and the three cards below it."),
+    el("label", { class: "field" }, el("span", { class: "lbl" }, "Banner photo"), imagePicker(heroImages, { single: true })),
+    field("Opening paragraph", intro),
+    el("h2", { style: "font-size:14px;margin:22px 0 4px" }, "Homepage “Our Story” teaser"),
+    el("p", { class: "hint" }, "The short version that appears near the bottom of the homepage."),
+    field("Teaser heading", storyTitle),
+    field("Teaser text", storyText),
+    el("h2", { style: "font-size:14px;margin:22px 0 10px" }, "The three cards"),
+    cards.map((c) => c.node),
+    save
+  );
 }
+
+function faqCard(faqs) {
+  const card = el("div", { class: "card" },
+    el("h2", {}, "FAQ"),
+    el("p", { class: "hint" }, "Questions and answers shown on the FAQ page, in this order.")
+  );
+
+  const list = el("div", {});
+  const reorder = async (index, delta) => {
+    const ids = faqs.map((f) => f.id);
+    const target = index + delta;
+    if (target < 0 || target >= ids.length) return;
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    try {
+      await api("/api/content/faqs/order/all", { method: "PUT", body: { ids } });
+      await openTab("content");
+    } catch (err) { toast(err.message, true); }
+  };
+
+  faqs.forEach((faq, i) => {
+    const question = el("input", { type: "text", value: faq.question });
+    const answer = el("textarea", {}, faq.answer);
+    list.appendChild(el("div", { class: "card", style: "background:var(--surface)" },
+      field("Question", question),
+      field("Answer", answer),
+      el("div", { class: "btn-row" },
+        el("button", { class: "btn sm", onclick: async () => {
+          try {
+            await api("/api/content/faqs/" + faq.id, { method: "PUT", body: { question: question.value, answer: answer.value } });
+            toast("Question saved");
+          } catch (err) { toast(err.message, true); }
+        } }, "Save"),
+        el("button", { class: "icon", title: "Move up", disabled: i === 0, onclick: () => reorder(i, -1) }, "↑"),
+        el("button", { class: "icon", title: "Move down", disabled: i === faqs.length - 1, onclick: () => reorder(i, 1) }, "↓"),
+        el("button", { class: "btn danger sm", onclick: async () => {
+          if (!confirmDialog("Delete this question?")) return;
+          try {
+            await api("/api/content/faqs/" + faq.id, { method: "DELETE" });
+            toast("Question deleted");
+            await openTab("content");
+          } catch (err) { toast(err.message, true); }
+        } }, "Delete")
+      )
+    ));
+  });
+  if (faqs.length === 0) list.appendChild(el("p", { class: "empty" }, "No questions yet."));
+
+  const newQuestion = el("input", { type: "text", placeholder: "New question" });
+  const newAnswer = el("textarea", { placeholder: "Answer" });
+  const addButton = el("button", { class: "btn", onclick: async () => {
+    if (!newQuestion.value.trim() || !newAnswer.value.trim()) {
+      return toast("Fill in both the question and the answer", true);
+    }
+    addButton.disabled = true;
+    try {
+      await api("/api/content/faqs/new", { method: "POST", body: { question: newQuestion.value, answer: newAnswer.value } });
+      toast("Question added");
+      await openTab("content");
+    } catch (err) { toast(err.message, true); addButton.disabled = false; }
+  } }, "+ Add Question");
+
+  card.append(list, el("div", { class: "card", style: "background:#fff;border-style:dashed" },
+    field("Question", newQuestion), field("Answer", newAnswer), addButton));
+  return card;
+}
+
+/* ========================== MESSAGES ===================================== */
+async function renderMessages(host) {
+  const messages = await api("/api/contact");
+  clear(host);
+  host.appendChild(el("div", { class: "section-head" }, el("h2", {}, "Contact Messages")));
+
+  if (messages.length === 0) {
+    host.appendChild(el("div", { class: "card" }, el("p", { class: "empty" }, "No messages yet.")));
+    return;
+  }
+
+  const table = el("table", {}, el("thead", {}, el("tr", {},
+    el("th", {}, "Date"), el("th", {}, "From"), el("th", {}, "Subject"), el("th", {}, "Message"), el("th", {}, "")
+  )));
+  const body = el("tbody", {});
+
+  for (const message of messages.slice().reverse()) {
+    body.appendChild(el("tr", {},
+      el("td", { class: "sub", style: "white-space:nowrap" }, fmtDate(message.createdAt)),
+      el("td", {}, message.name, el("div", { class: "sub" }, message.email)),
+      el("td", {}, message.subject || "—"),
+      // textContent, so a message containing markup shows as literal text.
+      el("td", { style: "max-width:320px;white-space:pre-wrap" }, message.message),
+      el("td", {}, el("button", { class: "btn danger sm", onclick: async () => {
+        if (!confirmDialog("Delete this message?")) return;
+        try {
+          await api("/api/contact/" + message.id, { method: "DELETE" });
+          toast("Message deleted");
+          await openTab("messages");
+        } catch (err) { toast(err.message, true); }
+      } }, "Delete"))
+    ));
+  }
+
+  table.appendChild(body);
+  host.appendChild(el("div", { class: "card" }, el("div", { class: "table-wrap" }, table)));
+}
+
+/* ========================== SETTINGS ===================================== */
+async function renderSettings(host) {
+  const content = await api("/api/content");
+  const contact = content.contact || {};
+  clear(host);
+  host.appendChild(el("div", { class: "section-head" }, el("h2", {}, "Settings")));
+
+  /* -- contact info -- */
+  const email = el("input", { type: "text", value: contact.email || "" });
+  const whatsapp = el("input", { type: "text", value: contact.whatsapp || "" });
+  const instagram = el("input", { type: "text", value: contact.instagram || "" });
+  const facebook = el("input", { type: "text", value: contact.facebook || "" });
+  const responseTime = el("input", { type: "text", value: contact.responseTime || "" });
+
+  const saveContact = el("button", { class: "btn", onclick: async () => {
+    saveContact.disabled = true;
+    try {
+      await api("/api/content/contact", { method: "PUT", body: {
+        email: email.value, whatsapp: whatsapp.value, instagram: instagram.value,
+        facebook: facebook.value, responseTime: responseTime.value,
+      } });
+      toast("Contact details saved");
+    } catch (err) { toast(err.message, true); }
+    saveContact.disabled = false;
+  } }, "Save Contact Details");
+
+  host.appendChild(el("div", { class: "card" },
+    el("h2", {}, "Contact & Social"),
+    el("p", { class: "hint" }, "Used by the footer, the Contact page, and the floating WhatsApp button."),
+    field("Email address", email),
+    field("WhatsApp number", whatsapp, "Country code first, digits only — e.g. 201065064698 for Egypt."),
+    field("Instagram link", instagram),
+    field("Facebook link", facebook),
+    field("Reply-time note", responseTime, "Shown on the Contact page."),
+    saveContact
+  ));
+
+  /* -- password -- */
+  const currentPassword = el("input", { type: "password", autocomplete: "current-password" });
+  const newPassword = el("input", { type: "password", autocomplete: "new-password" });
+  const confirmPassword = el("input", { type: "password", autocomplete: "new-password" });
+  const passwordMessage = el("div", { class: "msg err", hidden: true });
+
+  const savePassword = el("button", { class: "btn", onclick: async () => {
+    passwordMessage.hidden = true;
+    if (newPassword.value !== confirmPassword.value) {
+      passwordMessage.textContent = "The two new passwords don't match";
+      passwordMessage.className = "msg err";
+      passwordMessage.hidden = false;
+      return;
+    }
+    savePassword.disabled = true;
+    try {
+      const data = await api("/api/admin/password", { method: "POST", body: {
+        currentPassword: currentPassword.value, newPassword: newPassword.value,
+      } });
+      token = data.token;
+      localStorage.setItem(TOKEN_KEY, token);
+      currentPassword.value = newPassword.value = confirmPassword.value = "";
+      passwordMessage.textContent = "Password changed. Use the new one next time you log in.";
+      passwordMessage.className = "msg ok";
+      passwordMessage.hidden = false;
+      toast("Password changed");
+    } catch (err) {
+      passwordMessage.textContent = err.message;
+      passwordMessage.className = "msg err";
+      passwordMessage.hidden = false;
+    }
+    savePassword.disabled = false;
+  } }, "Change Password");
+
+  host.appendChild(el("div", { class: "card" },
+    el("h2", {}, "Admin Password"),
+    el("p", { class: "hint" }, "At least 10 characters, with both letters and numbers. Stored encrypted — no need to touch any files."),
+    field("Current password", currentPassword),
+    field("New password", newPassword),
+    field("Confirm new password", confirmPassword),
+    passwordMessage,
+    savePassword
+  ));
+
+  /* -- backup -- */
+  const backupButton = el("button", { class: "btn", onclick: async () => {
+    backupButton.disabled = true;
+    backupButton.textContent = "Preparing…";
+    try {
+      const res = await fetch("/api/admin/backup", { headers: { Authorization: "Bearer " + token } });
+      if (!res.ok) throw new Error("Backup failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = el("a", { href: url, download: "zakhrafa-backup-" + new Date().toISOString().slice(0, 10) + ".json" });
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      toast("Backup downloaded");
+    } catch (err) { toast(err.message, true); }
+    backupButton.disabled = false;
+    backupButton.textContent = "Download Backup";
+  } }, "Download Backup");
+
+  host.appendChild(el("div", { class: "card" },
+    el("h2", {}, "Backup"),
+    el("p", { class: "hint" }, "Downloads one file containing every product, order, category, message, uploaded photo, and all site text. Keep a copy somewhere safe."),
+    backupButton
+  ));
+}
+
+/* ---------- boot ---------------------------------------------------------- */
+for (const event of ["click", "keydown", "input", "scroll"]) {
+  document.addEventListener(event, markActivity, { passive: true });
+}
+setInterval(sessionTick, 30 * 1000);
+
+window.addEventListener("hashchange", () => {
+  if (token && !document.getElementById("app").hidden) openTab(location.hash.replace("#", ""));
+});
+
+(async function boot() {
+  if (!token) return;
+  if (idleMs() > IDLE_LIMIT_MS) return logout("You were logged out after 20 minutes of inactivity.");
+  try {
+    // Never trust a stored token on its own — the server has to confirm it's still valid.
+    await api("/api/admin/me");
+    await showApp();
+  } catch { /* api() already logged out on a 401 */ }
+})();
 </script>
 </body>
 </html>

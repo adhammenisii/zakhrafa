@@ -1,6 +1,6 @@
 import React from "react";
+import { useStore } from "../lib/store.jsx";
 
-const WHATSAPP_NUMBER = "201000000000"; // TODO: replace with Zakhrafa's real WhatsApp business number
 const MESSAGE = "Hi Zakhrafa! I'd like to ask about...";
 
 function WhatsAppIcon({ size = 26 }) {
@@ -15,9 +15,13 @@ function WhatsAppIcon({ size = 26 }) {
 }
 
 export default function FloatingWhatsApp() {
+  const { content } = useStore();
+  const number = content.contact.whatsapp;
+  if (!number) return null;
+
   return (
     <a
-      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(MESSAGE)}`}
+      href={`https://wa.me/${number}?text=${encodeURIComponent(MESSAGE)}`}
       target="_blank"
       rel="noreferrer"
       aria-label="Chat with us on WhatsApp"

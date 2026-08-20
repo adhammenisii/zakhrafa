@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
-import { useStore, CATEGORIES, fmt } from "../lib/store.jsx";
+import { useStore, isAvailable, fmt } from "../lib/store.jsx";
 import { SkeletonImg, Motif, MUTED, INK, BLUSH_DEEP, SURFACE, ACCENT, LINE } from "./ui.jsx";
 
 export default function ProductCard({ product }) {
-  const { addToCart, isWishlisted, toggleWishlist } = useStore();
+  const { addToCart, isWishlisted, toggleWishlist, categories } = useStore();
   const wished = isWishlisted(product.id);
-  const outOfStock = (product.stock ?? 0) <= 0;
+  const outOfStock = !isAvailable(product);
 
   return (
     <div className="product-card" style={{ background: "#fff", border: `1px solid ${LINE}`, borderRadius: 4, overflow: "hidden" }}>
@@ -39,7 +39,7 @@ export default function ProductCard({ product }) {
         </div>
         <div style={{ padding: "18px 18px 12px" }}>
           <div style={{ fontSize: 10.5, color: MUTED, letterSpacing: 0.5, marginBottom: 6 }}>
-            {CATEGORIES.find((c) => c.id === product.cat)?.label}
+            {categories.find((c) => c.id === product.cat)?.label}
           </div>
           <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 10, color: INK }}>{product.name}</div>
         </div>

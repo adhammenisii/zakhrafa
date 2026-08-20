@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Heart } from "lucide-react";
-import { useStore, CATEGORIES, fmt } from "../lib/store.jsx";
+import { useStore, isAvailable, fmt } from "../lib/store.jsx";
 import { Reveal, Breadcrumbs, INK, MUTED, LINE, BLUSH_DEEP } from "../components/ui.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import ProductGallery from "../components/ProductGallery.jsx";
@@ -11,7 +11,7 @@ import { useSeo } from "../lib/useSeo.js";
 export default function ProductPage() {
   const { id } = useParams();
   const productId = Number(id);
-  const { products, loading, addToCart, isWishlisted, toggleWishlist, recentlyViewed, addRecentlyViewed } = useStore();
+  const { products, categories, loading, addToCart, isWishlisted, toggleWishlist, recentlyViewed, addRecentlyViewed } = useStore();
 
   const product = products.find((p) => p.id === productId);
 
@@ -60,9 +60,9 @@ export default function ProductPage() {
     );
   }
 
-  const categoryLabel = CATEGORIES.find((c) => c.id === product.cat)?.label || product.cat;
+  const categoryLabel = categories.find((c) => c.id === product.cat)?.label || product.cat;
   const wished = isWishlisted(product.id);
-  const outOfStock = (product.stock ?? 0) <= 0;
+  const outOfStock = !isAvailable(product);
   const galleryImages = product.images?.length ? product.images : product.img ? [product.img] : [];
 
   return (

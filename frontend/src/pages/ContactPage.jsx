@@ -12,9 +12,13 @@ export default function ContactPage() {
     description: "Get in touch with Zakhrafa for questions about an order, a custom piece, or anything else.",
   });
 
-  const { setToast } = useStore();
+  const { setToast, content } = useStore();
+  const { email: contactEmail, instagram, responseTime } = content.contact;
   const [form, setForm] = useState(initialForm);
   const [sending, setSending] = useState(false);
+
+  // "@handle" reads better than the full URL next to the icon.
+  const instagramHandle = instagram ? "@" + instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/$/, "") : "";
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -65,18 +69,24 @@ export default function ContactPage() {
 
         <Reveal delay={100}>
           <div style={{ borderLeft: `1px solid ${LINE}`, paddingLeft: 40 }} className="contact-aside">
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 12.5, color: MUTED, letterSpacing: 0.5, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}><Mail size={14} /> Email</div>
-              <a href="mailto:hello@zakhrafa-handmade.com" style={{ color: INK, textDecoration: "none", fontSize: 14.5 }}>hello@zakhrafa-handmade.com</a>
-            </div>
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 12.5, color: MUTED, letterSpacing: 0.5, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}><Instagram size={14} /> Instagram</div>
-              <a href="https://instagram.com/zakhrafa_handmade" target="_blank" rel="noreferrer" style={{ color: INK, textDecoration: "none", fontSize: 14.5 }}>@zakhrafa_handmade</a>
-            </div>
-            <div>
-              <div style={{ fontSize: 12.5, color: MUTED, letterSpacing: 0.5, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}><MessageCircle size={14} /> Response Time</div>
-              <p style={{ color: MUTED, fontSize: 13.5, lineHeight: 1.8, margin: 0 }}>We usually reply within 1–2 business days.</p>
-            </div>
+            {contactEmail && (
+              <div style={{ marginBottom: 28 }}>
+                <div style={{ fontSize: 12.5, color: MUTED, letterSpacing: 0.5, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}><Mail size={14} /> Email</div>
+                <a href={`mailto:${contactEmail}`} style={{ color: INK, textDecoration: "none", fontSize: 14.5 }}>{contactEmail}</a>
+              </div>
+            )}
+            {instagram && (
+              <div style={{ marginBottom: 28 }}>
+                <div style={{ fontSize: 12.5, color: MUTED, letterSpacing: 0.5, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}><Instagram size={14} /> Instagram</div>
+                <a href={instagram} target="_blank" rel="noreferrer" style={{ color: INK, textDecoration: "none", fontSize: 14.5 }}>{instagramHandle}</a>
+              </div>
+            )}
+            {responseTime && (
+              <div>
+                <div style={{ fontSize: 12.5, color: MUTED, letterSpacing: 0.5, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}><MessageCircle size={14} /> Response Time</div>
+                <p style={{ color: MUTED, fontSize: 13.5, lineHeight: 1.8, margin: 0 }}>{responseTime}</p>
+              </div>
+            )}
           </div>
         </Reveal>
       </div>
